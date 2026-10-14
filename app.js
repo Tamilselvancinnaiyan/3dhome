@@ -67,9 +67,40 @@ rail(stairMax,9.95,8.8,stairMax,12.95,8.8);rail(30,12.95,8.8,stairMax,12.95,8.8)
 for(let i=0;i<3;i++)box(26,.22*(i+1),1,13,.11*(i+1),38.5-i,'#bdbeb5');
 for(const x of [.4,25.6])box(.35,9.5,.35,x,4.75,35.6,'#F2EBDD');box(26,.3,6,13,9.5,33,'#41454A',roof);
 // Furniture made from fully local procedural meshes.
-function bed(x,z,w,d){box(w,.7,d,x,.55,z,'#86512E',furn);box(w-.15,.65,d-.1,x,1.2,z,'#f6f2e8',furn);box(w+.15,3,.22,x,1.5,z-d/2,'#86512E',furn);box(w-.1,.13,d*.65,x,1.59,z+d*.17,'#A5AD98',furn);for(const dx of [-w/4,w/4])box(w*.39,.23,1.2,x+dx,1.62,z-d*.3,'#f8f6ee',furn);for(const dx of [-w/2-.7,w/2+.7]){box(1.15,1.5,1.4,x+dx,.75,z-d/2+.5,'#86512E',furn);cyl(.28,.12,x+dx,1.55,z-d/2+.5,'#ddd4bd');}}
-bed(4.2,4.8,5.5,6.5);bed(20.5,4.8,6,7);box(1.6,6.8,6,15.7,3.4,4,'#86512E',furn);box(5,6.8,1.4,4.3,3.4,10,'#86512E',furn);
-for(let x=1.9;x<6.8;x+=.7)box(.03,6.4,.05,x,3.5,10.72,'#86512E',furn);
+// All dimensions are feet. The complete bed, including its slim headboard,
+// fits a 5 x 6.5 footprint; the frame does not project past that envelope.
+function queenBed(x,z,rotation=0){
+  const bedGroup=new THREE.Group();bedGroup.position.set(x,0,z);bedGroup.rotation.y=rotation;furn.add(bedGroup);
+  const w=5,d=6.5,wood='#987352';
+  box(w-.3,.24,d-.3,0,.22,0,wood,bedGroup); // Recessed support plinth.
+  box(w,.3,d,0,.49,0,wood,bedGroup);
+  box(w,.12,d,0,.7,0,'#ddd5c7',bedGroup);
+  box(w-.04,.5,d-.18,0,1.01,.07,'#f5f1e8',bedGroup);
+  box(w,2.3,.14,0,1.23,-d/2+.07,wood,bedGroup);
+  box(w-.06,.05,3.8,0,1.285,1.23,'#d7cfbf',bedGroup);
+  for(const dx of [-1.25,1.25])box(1.65,.18,1.1,dx,1.38,-2.15,'#f7f3eb',bedGroup);
+}
+// Turn the beds so wardrobe access remains open within the existing walls.
+queenBed(3.75,3.5,Math.PI/2); // 2.775-foot entrance aisle and wardrobe access.
+queenBed(18.5,3.75,Math.PI/2); // 2.525 feet to wardrobe; 3.525 feet at bed foot.
+// Bedroom 2: one compact 12 x 7.8-inch table, below the window sill.
+box(1,.12,.65,1.05,1.4,.6,'#987352',furn);
+for(const x of [.66,1.44])for(const z of [.365,.835])box(.08,1.27,.08,x,.705,z,'#987352',furn);
+// Master: compact shelves on the headboard wall, outside the entrance swing.
+for(const z of [.73,6.9])box(1,.16,1,15.23,1.4,z,'#987352',furn);
+// Light laminate wardrobes. Sliding panels and recessed pulls stay inside the
+// stated footprint, so using the wardrobe requires no additional door swing.
+function wardrobe(x,z,w){
+  const h=7,d=2,base=.08;
+  box(w,h,d-.06,x,base+h/2,z+.03,'#cfb99a',furn);
+  for(const side of [-1,1]){
+    box(w/2-.04,h-.2,.06,x+side*w/4,base+h/2,z-d/2+.03,'#ddd2bd',furn);
+    box(.045,.65,.035,x+side*.13,3.4,z-d/2+.0175,'#81735f',furn);
+  }
+  for(const y of [base+.11,base+h-.11])box(w-.08,.035,.04,x,y,z-d/2+.03,'#b7a58a',furn);
+}
+wardrobe(2.5,9.775,4); // 4 x 2 x 7 feet, against Bedroom 2's solid front wall.
+wardrobe(20,9.775,5); // 5 x 2 x 7 feet, clear of both master doorways.
 // Sofa along the rear wall, coffee table on the rug, TV on the front wall.
 box(8,.06,7.5,20,.1,19,'#d6cbb7',furn);
 box(8,1.1,2.7,20,1,13.1,'#b6aa94',furn);
@@ -113,7 +144,7 @@ box(2.8,.07,2.8,x,.15,showerZ,'#cbd9d7',furn);rail(x,6.8,showerZ-.6,x,6.8,shower
 
 bath(12.2,6);bath(28,9);box(2.2,3.2,2.2,28,1.6,23,'#e8ebe5',furn);const washer=cyl(.78,.13,28,1.7,21.86,'#506466');washer.rotation.x=Math.PI/2;box(1.1,2.6,2,29.2,1.3,23,'#b7b4a1',furn);box(1.2,.2,2.1,29.2,2.7,23,'#d9dfd6',furn);
 function plant(x,z,s=1,y=0){cyl(.5*s,.8*s,x,y+.4*s,z,'#9c8b70');for(let i=0;i<7;i++){const a=i*2.4,m=new THREE.Mesh(new THREE.SphereGeometry(.5*s,8,8),mat(i%2?'#647d42':'#839359'));m.scale.set(.6,1.6,.4);m.position.set(x+Math.sin(a)*.4*s,y+1.1*s,z+Math.cos(a)*.4*s);m.rotation.z=Math.sin(a)*.6;furn.add(m);}}
-for(const p of [[16,29],[24,29],[29.3,14.8,.55],[29.3,24,.55],[1.2,35],[24.8,35],[7.8,1.5],[20,19,.4,1.65]])plant(...p);for(let z=-2;z<38;z+=4)for(const x of [-2,35.5])plant(x,z,.9);
+for(const p of [[16,29],[24,29],[29.3,14.8,.55],[29.3,24,.55],[1.2,35],[24.8,35],[20,19,.4,1.65]])plant(...p);for(let z=-2;z<38;z+=4)for(const x of [-2,35.5])plant(x,z,.9);
 box(2,.3,14,35.5,-.25,26,'#b4b7a5');
 const rooms=[{name:'Living room',dim:"16′ × 14′",x:20,z:23,look:[20,3.4,29.3]},{name:'Dining',dim:"10′ × 8′6″",x:7,z:21.5,look:[7,3,17]},{name:'Kitchen',dim:"10′ × 8′",x:8,z:25,look:[5,3,28]},{name:'Master bedroom',dim:"12′ × 13′",x:23,z:9,look:[20,3,4]},{name:'Bedroom 2',dim:"11′ × 11′",x:8,z:8.5,look:[4,3,4]},{name:'Common bathroom',dim:"5′ × 7′6″",x:12.3,z:6.6,look:[12,3,1.5]},{name:'Attached bathroom',dim:"5′ × 8′",x:28,z:9.8,look:[28,3,3]},{name:'Pooja room',dim:"4′ × 5′",x:28,z:14.5,look:[28,2.5,12]},{name:'Utility',dim:"4′6″ × 8′",x:28,z:20,look:[28,3,23]},{name:'Sit-out',dim:"26′ × 6′ · Open sides",x:13,z:33,look:[19,3,30]},{name:'External staircase',dim:'Independent access',x:stairX,z:34.5,look:[stairX,8,16]}];
 for(const r of rooms){const b=document.createElement('button');b.innerHTML=`${r.name}<span>${r.dim}</span>`;b.onclick=()=>focusRoom(r);$('rooms').append(b);r.button=b;const l=document.createElement('div');l.className='room-label';l.textContent=r.name;$('labels-layer').append(l);r.label=l;}
