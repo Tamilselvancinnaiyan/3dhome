@@ -1,7 +1,9 @@
+import {designValidation,kitchenCounters} from './design-validation.mjs?v=aligned-rooms-1';
 import * as THREE from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';
-import {EXTERNAL,INTERNAL,HEIGHT,FLOOR_Y,outline,perimeter,rooms as roomDefs,wallSpecs,porch,stair,entranceSteps,furnitureFootprints,rect,inside,dimensionText,dimension,feetInches,areaSummary,wallCells,floorCells,mergeRects,doorPose,openingRect,bounds,contains} from './model-plan.mjs?v=verified-plan-2';
+import {EXTERNAL,INTERNAL,HEIGHT,FLOOR_Y,outline,perimeter,rooms as roomDefs,wallSpecs,porch,stair,entranceSteps,furnitureFootprints,rect,inside,dimensionText,dimension,feetInches,areaSummary,wallCells,floorCells,mergeRects,doorPose,openingRect,bounds,contains} from './model-plan.mjs?v=aligned-rooms-1';
 const $=id=>document.getElementById(id),vp=$('viewport');
+function setOptionalText(id,text){const element=$(id);if(element)element.textContent=text;}
 const scene=new THREE.Scene();scene.background=new THREE.Color('#e6e9e3');
 const camera=new THREE.PerspectiveCamera(42,1,.1,300);
 let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});}catch(e){$('loading').textContent='This viewer needs WebGL. Please enable hardware acceleration in your browser.';throw e;}
@@ -136,9 +138,15 @@ furnish('dining-set',()=>{
 box(1.8,2.5,1.4,9.65,1.33,13,'#86512E',furn);box(1.9,.16,1.5,9.65,2.66,13,'#C8BDB0',furn);
 cyl(.52,.12,9.65,2.8,13,'#F2EBDD');rail(9.65,2.74,12.45,9.65,3.25,12.45,.045,furn);rail(9.65,3.25,12.45,9.65,3.25,12.85,.045,furn);
 // L-shaped kitchen counters meet at an edge, not overlapping boxes.
-for(const r of [rect(.75,27,10.75,29),rect(.75,23.5,2.75,27)]){rectBox(r,FLOOR_Y,2.8,'#C8BDB0',furn);rectBox(r,2.8,2.98,'#555c55',furn);}
+for(const r of kitchenCounters){rectBox(r,FLOOR_Y,2.8,'#C8BDB0',furn);rectBox(r,2.8,2.98,'#555c55',furn);}
 furnish('kitchen-fridge',()=>{box(2.2,6,2.2,2.1,3.08,22.35,'#c4ccc7',furn);box(2.2,.04,2.2,2.1,4,22.35,'#8a9691',furn);});
-box(2.2,.06,1.4,8.5,3.01,28,'#9da8a4',furn);box(1.7,.05,1,8.5,3.065,28,'#667b7c',furn);rail(8.5,3.05,27.4,8.5,3.8,27.4,.045,furn);rail(8.5,3.8,27.4,8.5,3.8,27.9,.045,furn);
+// Sink against the kitchen–dining corner, with its passage kept clear.
+furnish('kitchen-sink-counter',()=>{
+ const r=furnitureFootprints.find(f=>f.id==='kitchen-sink-counter').r;
+ rectBox(r,FLOOR_Y,2.8,'#C8BDB0',furn);rectBox(r,2.8,2.98,'#555c55',furn);
+ box(1.4,.06,2.2,9.75,3.01,22.5,'#9da8a4',furn);box(1,.05,1.7,9.75,3.065,22.5,'#667b7c',furn);
+ rail(10.35,3.05,22.5,10.35,3.8,22.5,.045,furn);rail(10.35,3.8,22.5,9.85,3.8,22.5,.045,furn);
+});
 box(2.4,.07,1.6,4.4,3.015,28,'#262c29',furn);for(const x of [3.8,5])for(const z of [27.6,28.4])cyl(.3,.055,x,3.0775,z,'#666c67');
 for(const x of [1.8,9.6])nameObject(box(1.7,2,1.1,x,6,28.45,'#86512E',furn),'Kitchen wall-mounted cabinet');
 function bathroom(prefix){
@@ -152,23 +160,43 @@ function bathroom(prefix){
  }
 }
 bathroom('common');bathroom('attached');
-furnish('pooja-altar',()=>{box(2.7,1.3,1.4,30,.73,16.6,'#b38451',furn);box(2.7,.18,1.4,30,1.47,16.6,'#d6aa65',furn);box(2.5,3.4,.12,30,3.1,15.9,'#86512E',furn);cyl(.38,.15,30,1.635,16.6,'#d8ad4b');const idol=new THREE.Mesh(new THREE.SphereGeometry(.4,16,16),mat('#d8ad4b',.35,.5));idol.scale.set(1,1.6,.7);idol.position.set(30,2.35,16.6);furn.add(idol);});
+const altarGroup=furnish('pooja-altar',()=>{box(2.7,1.3,1.4,30,.73,16.6,'#b38451',furn);box(2.7,.18,1.4,30,1.47,16.6,'#d6aa65',furn);box(2.5,3.4,.12,30,3.1,15.9,'#86512E',furn);cyl(.38,.15,30,1.635,16.6,'#d8ad4b');const idol=new THREE.Mesh(new THREE.SphereGeometry(.4,16,16),mat('#d8ad4b',.35,.5));idol.scale.set(1,1.6,.7);idol.position.set(30,2.35,16.6);furn.add(idol);});
+altarGroup.position.z=-1.5;
 furnish('utility-washer',()=>{box(2.2,3.2,2.2,29.1,1.68,27.6,'#e8ebe5',furn);const face=cyl(.78,.12,29.1,1.7,26.56,'#506466');face.rotation.x=Math.PI/2;});
 furnish('utility-counter',()=>{box(1.1,2.6,2,31.35,1.38,27.5,'#b7b4a1',furn);box(1.1,.2,2,31.35,2.78,27.5,'#d9dfd6',furn);});
-for(const [z,rotation] of [[31.15,0],[34.15,Math.PI]]){chair(10.4,z,rotation);furn.children.at(-1).position.y=FLOOR_Y;}
-cyl(.55,.12,10.4,FLOOR_Y+1.75,32.65,'#cfb99a');cyl(.12,1.69,10.4,FLOOR_Y+.845,32.65,'#86512E');
-for(const p of [[19.2,30.95,.65,FLOOR_Y],[18.6,34.75,.65,FLOOR_Y],[17,27.5,1,FLOOR_Y],[24.8,27.5,1,FLOOR_Y],[20.4,22.55,.4,1.615],[31.25,19.8,.45,FLOOR_Y]])plant(...p);
+for(const p of [[17,27.5,1,FLOOR_Y],[24.8,27.5,1,FLOOR_Y],[20.4,22.55,.4,1.615],[31.25,18.3,.45,FLOOR_Y]])plant(...p);
 for(let z=-2;z<40;z+=5)for(const x of [-2.5,39])plant(x,z,.8,-1.5);
 // Room labels and areas are derived from the same finished-face geometry as floors.
-const views={living:[14.55,26],dining:[9.7,18.5],kitchen:[5,24],master:[19.2,9],bed2:[9.5,7.2],common:[15.5,5],attached:[32.2,7],pooja:[30,19.3],utility:[28.8,24.7]};
-const rooms=roomDefs.map(q=>({...q,dim:dimensionText(q.r),x:(q.r.x0+q.r.x1)/2,z:(q.r.z0+q.r.z1)/2,walk:views[q.id],look:[(q.r.x0+q.r.x1)/2,3,q.r.z0+1]}));
+const views={living:[14.55,26],dining:[9.7,18.5],kitchen:[5,24],master:[19.2,9],bed2:[9.5,7.2],common:[15.5,5],attached:[32.2,7],pooja:[30,17.8],utility:[28.8,24.7]};
+const rooms=roomDefs.map(q=>({...q,dim:dimensionText(q.r)+(q.extra?.length?' + alcove':''),x:(q.r.x0+q.r.x1)/2,z:(q.r.z0+q.r.z1)/2,walk:views[q.id],look:[(q.r.x0+q.r.x1)/2,3,q.r.z0+1]}));
 rooms.push({id:'sitout',name:'Sit-out',r:porch.r,dim:dimensionText(porch.r),x:14.55,z:32.75,walk:[14.55,32.75],look:[14.55,3,29.75]},{id:'stair',name:'External staircase',dim:`${feetInches(3.5)} wide · ${stair.risers} risers`,x:34.5,z:34.5,walk:[34.5,34.5],look:[34.5,8,12]});
 for(const r of rooms){const b=document.createElement('button');b.innerHTML=`${r.name}<span>${r.dim}</span>`;b.onclick=()=>focusRoom(r);$('rooms').append(b);r.button=b;const l=document.createElement('div');l.className='room-label';l.textContent=r.name;$('labels-layer').append(l);r.label=l;}
 const summary=areaSummary(),number=n=>n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-$('main-area').textContent=number(summary.main);$('wall-assumptions').textContent=`1 model unit = 1 foot. External walls: ${feetInches(EXTERNAL)}; internal walls: ${feetInches(INTERNAL)}. Preliminary modeling assumptions; wall construction needs architect/engineer confirmation.`;
+$('main-area').textContent=number(summary.main);setOptionalText('wall-assumptions',`1 model unit = 1 foot. External walls: ${feetInches(EXTERNAL)}; internal walls: ${feetInches(INTERNAL)}. Preliminary modeling assumptions; wall construction needs architect/engineer confirmation.`);
+// Status text and highlights share the same geometry-derived audit results.
+const validation=designValidation(),validationGroup=new THREE.Group();house.add(validationGroup);
+const validationColors={PASS:'#238454',FAIL:'#cc3434','NEEDS MANUAL VERIFICATION':'#c78210'};
+const validationList=$('validation-checks');
+for(const check of validation.checks){
+ const item=document.createElement('details');item.className='validation-item';item.dataset.status=check.status;
+ const heading=document.createElement('summary');heading.textContent=`${check.status} · ${check.title}`;item.append(heading);
+ for(const text of [`Severity: ${check.severity}`,check.existing,`Criterion: ${check.criterion}`,`Action: ${check.correction}`,`Impact: ${check.impact}`]){const p=document.createElement('p');p.textContent=text;item.append(p);}
+ const source=document.createElement('small');source.textContent='Source: '+check.source.map(v=>v.replace('|',' → ')).join('; ');item.append(source);validationList?.append(item);
+ // Whole-house structural uncertainty belongs in the panel, not a blanket tint
+ // that would hide local issues. A green region means only its named check passes.
+ if(check.id==='structure'||check.id==='area')continue;
+ for(const r of check.regions){
+  const color=validationColors[check.status],geometry=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(r.x0,.18,r.z0),new THREE.Vector3(r.x1,.18,r.z0),new THREE.Vector3(r.x1,.18,r.z1),new THREE.Vector3(r.x0,.18,r.z1)]);
+  const line=new THREE.LineLoop(geometry,new THREE.LineBasicMaterial({color,depthTest:false}));line.renderOrder=10;validationGroup.add(line);
+  if(check.status==='FAIL'){const fill=new THREE.Mesh(new THREE.PlaneGeometry(r.x1-r.x0,r.z1-r.z0),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.18,depthTest:false,depthWrite:false}));fill.rotation.x=-Math.PI/2;fill.position.set((r.x0+r.x1)/2,.17,(r.z0+r.z1)/2);fill.renderOrder=9;validationGroup.add(fill);}
+ }
+}
+setOptionalText('validation-counts',['FAIL','NEEDS MANUAL VERIFICATION','PASS'].map(status=>`${validation.checks.filter(c=>c.status===status).length} ${status.toLowerCase()}`).join(' · '));
+for(const [label,value] of [['Main-house built-up',validation.areas.main],['Sit-out',validation.areas.porch],['Staircase',validation.areas.stairs],['Approach steps',validation.areas.steps],['Total modeled footprint',validation.areas.combined]]){const row=document.createElement('div');const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=number(value)+' sq ft';row.append(dt,dd);$('validation-areas')?.append(row);}
+setOptionalText('validation-budget',`At ₹2,350/sq ft: main house ₹${number(validation.budget.main/100000)} lakh; house + sit-out + stair ₹${number(validation.budget.covered/100000)} lakh. Same-rate scenarios, not a quotation. See audit report for exclusions.`);
 const mainBounds=bounds(outline),mainDimensions=dimension(mainBounds),stairBounds=bounds([stair.flight,stair.landing]),stairDimensions=dimension(stairBounds);
-for(const [label,value] of [['Clear internal room area',summary.clear],['External wall area',summary.external],['Internal partition area',summary.partition],['Circulation / unassigned',summary.circulation],['Main-house built-up',summary.main],['Sit-out',summary.porch],['External staircase',summary.stairs],['Porch approach steps',summary.steps],['Combined ground footprint',summary.combined]]){const row=document.createElement('div');row.innerHTML=`<dt>${label}</dt><dd>${number(value)} sq ft</dd>`;$('area-values').append(row);}
-$('area-note').textContent=`Main block: ${feetInches(mainDimensions.width)} × ${feetInches(mainDimensions.depth)} overall, with a stepped right edge. Combined footprint includes approach steps; without them: ${number(summary.combinedWithoutSteps)} sq ft. Living/dining are clear measurement zones within the open hall. Stair: ${stair.risers} risers of ${(stair.rise*12).toFixed(2)}″, ${feetInches(stair.going)} goings and a 3-foot landing.`;
+for(const [label,value] of [['Clear internal room area',summary.clear],['External wall area',summary.external],['Internal partition area',summary.partition],['Circulation / unassigned',summary.circulation],['Main-house built-up',summary.main],['Sit-out',summary.porch],['External staircase',summary.stairs],['Porch approach steps',summary.steps],['Combined ground footprint',summary.combined]]){const row=document.createElement('div');row.innerHTML=`<dt>${label}</dt><dd>${number(value)} sq ft</dd>`;$('area-values')?.append(row);}
+setOptionalText('area-note',`Main block: ${feetInches(mainDimensions.width)} × ${feetInches(mainDimensions.depth)} overall, with a stepped right edge. Combined footprint includes approach steps; without them: ${number(summary.combinedWithoutSteps)} sq ft. Living/dining are clear measurement zones within the open hall. Stair: ${stair.risers} risers of ${(stair.rise*12).toFixed(2)}″, ${feetInches(stair.going)} goings and a 3-foot landing.`);
 // Optional dimension overlay: projected labels plus in-scene dimension lines.
 const measures=new THREE.Group();house.add(measures);const measureLabels=[];
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#285c57',depthTest:false,transparent:true,opacity:.9});
@@ -230,6 +258,7 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min((now-prev)/10
  if(mode==='walk'){const f=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),s=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),n=Math.hypot(f,s)||1,dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*dt*6/n,dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*dt*6/n;
   if(!blocked(camera.position.x+dx,camera.position.z))camera.position.x+=dx;if(!blocked(camera.position.x,camera.position.z+dz))camera.position.z+=dz;camera.position.y=heightAt(camera.position.x,camera.position.z);camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0);
  }else{if(anim){const t=Math.min(1,(now-anim.start)/900),e=t*t*(3-2*t);camera.position.lerpVectors(anim.from,anim.to,e);controls.target.lerpVectors(anim.tf,anim.tt,e);if(t===1)anim=null;}controls.update();}
+ validationGroup.visible=mode==='top'&&Boolean($('validation-overlay')?.checked);vp.classList.toggle('validating',validationGroup.visible);
  const measuring=mode==='top'&&$('measurements').checked;measures.visible=measuring;vp.classList.toggle('measuring',measuring);
  for(const r of rooms)placeLabel(r.label,r.x,r.id==='common'&&measuring?8.9:r.id==='attached'&&measuring?9.55:r.id==='stair'&&measuring?35.7:r.r?r.r.z1-1:r.z,$('labels').checked&&mode!=='walk'&&mode!=='exterior');
  for(const label of measureLabels)placeLabel(label.element,label.x,label.z,measuring);

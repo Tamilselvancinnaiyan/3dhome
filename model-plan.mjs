@@ -12,12 +12,12 @@ export const rooms=[
  {id:'living',name:'Living room',r:rect(11.125,15,27.125,29),zone:true,original:'Open plan; label 16 × 14'},
  {id:'dining',name:'Dining',r:rect(.75,12.125,10.75,20.625),zone:true,original:'Open plan; label 10 × 8.5'},
  {id:'kitchen',name:'Kitchen',r:rect(.75,21,10.75,29),original:'12 × 7 centerlines'},
- {id:'master',name:'Master bedroom',r:rect(17.5,.75,29.5,13.75),original:'11 × 11 centerlines'},
+ {id:'master',name:'Master bedroom',r:rect(17.5,.75,29.5,13.75),extra:[rect(29.5,9.125,32,13.75)],original:'11 × 11 centerlines'},
  {id:'bed2',name:'Bedroom 2',r:rect(.75,.75,11.75,11.75),original:'10 × 11 centerlines'},
  {id:'common',name:'Common bathroom',r:rect(12.125,.75,17.125,8.25),original:'4.5 × 7.5 centerlines'},
  {id:'attached',name:'Attached bathroom',r:rect(29.875,.75,34.875,8.75),original:'4.5 × 11 centerlines'},
- {id:'pooja',name:'Pooja room',r:rect(28,15.625,32,20.625),original:'4 × 5 centerlines'},
- {id:'utility',name:'Utility',r:rect(27.5,21,32,29),original:'4 × 9 centerlines'}
+ {id:'pooja',name:'Pooja room',r:rect(28,14.125,32,19.125),original:'4 × 5 centerlines'},
+ {id:'utility',name:'Utility',r:rect(27.5,19.5,32,29),original:'4 × 9 centerlines'}
 ];
 const opening=(kind,from,to,extra={})=>({kind,from,to,...extra});
 const win=(from,to,sill=3,height=4)=>opening('window',from,to,{sill,top:sill+height});
@@ -34,16 +34,15 @@ export const wallSpecs=[
  w('bed2-east','z',rect(11.75,.75,12.125,11.75),false,[door(8.5,11.5,1,'max')]),
  w('bed2-south','x',rect(.75,11.75,12.125,12.125),false),
  w('common-south','x',rect(12.125,8.25,17.125,8.625),false,[door(14.125,16.875,1)]),
- w('master-west','z',rect(17.125,.75,17.5,13.75),false),
- w('master-east','z',rect(29.5,.75,29.875,13.75),false,[door(5.5,8.25,1)]),
- w('master-south','x',rect(17.125,13.75,29.875,14.125),false,[door(18,21,-1,'max')]),
+ w('master-west','z',rect(17.125,.75,17.5,13.75),false,[door(10.5,13.5,-1,'max')]),
+ w('master-east','z',rect(29.5,.75,29.875,9.125),false,[door(5.5,8.25,1)]),
+ w('master-south','x',rect(17.125,13.75,32,14.125),false),
  w('attached-south','x',rect(29.875,8.75,32,9.125),false),
  w('kitchen-north','x',rect(.75,20.625,11.125,21),false,[opening('opening',4,7)],3.5),
  w('kitchen-east','z',rect(10.75,21,11.125,29),false),
- w('pooja-north','x',rect(27.625,15.25,32,15.625),false),
- w('pooja-west','z',rect(27.625,15.625,28,20.625),false,[opening('opening',17.5,20)]),
- w('pooja-utility','x',rect(27.125,20.625,32,21),false),
- w('utility-west','z',rect(27.125,21,27.5,29),false,[door(21.5,24.25,-1)])
+ w('pooja-west','z',rect(27.625,14.125,28,19.125),false,[opening('opening',16,18.5)]),
+ w('pooja-utility','x',rect(27.125,19.125,32,19.5),false),
+ w('utility-west','z',rect(27.125,19.5,27.5,29),false,[door(21.5,24.25,-1)])
 ];
 export const porch={r:rect(7.05,29.75,22.05,35.75),centerX:14.55,floorY:FLOOR_Y,roofBottom:HEIGHT};
 export const stair={flight:rect(32.75,12.75,36.25,33.75),landing:rect(32.75,9.75,36.25,12.75),groundY:-1.5,topY:9.9,risers:22};
@@ -67,8 +66,9 @@ export const furnitureFootprints=[
  {id:'living-table',room:'living',r:rect(18.4,21.15,22.4,23.95)},
  {id:'living-console',room:'living',r:rect(16.5,27.8,23.5,28.92)},
  {id:'dining-set',room:'dining',r:rect(.76,12.16,8.24,17.84)},
+ {id:'kitchen-sink-counter',room:'kitchen',r:rect(8.75,21,10.75,24.25)},
  {id:'kitchen-fridge',room:'kitchen',r:rect(1,21.25,3.2,23.45)},
- {id:'pooja-altar',room:'pooja',r:rect(28.65,15.84,31.35,17.3)},
+ {id:'pooja-altar',room:'pooja',r:rect(28.65,14.34,31.35,15.8)},
  {id:'utility-washer',room:'utility',r:rect(28,26.5,30.2,28.7)},
  {id:'utility-counter',room:'utility',r:rect(30.8,26.5,31.9,28.5)}
 ];
@@ -105,10 +105,10 @@ export function wallCells(){
 }
 export function floorCells(){
  const openings=wallSpecs.flatMap(w=>w.openings.map(o=>openingRect(w,o))),out=[];
- gridCells({outline,wall:wallSpecs.map(w=>w.r),openings,rooms:rooms.map(r=>r.r)},(r,state,x,z)=>{
+ gridCells({outline,wall:wallSpecs.map(w=>w.r),openings,rooms:rooms.flatMap(q=>[q.r,...(q.extra??[])])},(r,state,x,z)=>{
   if(!state.outline)return;
   const solid=wallSpecs.filter(w=>inside(w.r,x,z)&&!w.openings.some(o=>(o.kind==='door'||o.kind==='opening')&&inside(openingRect(w,o),x,z)));
-  const kind=solid.some(w=>w.external)?'external':solid.length?'partition':rooms.find(q=>inside(q.r,x,z))?.id??'circulation';out.push({r,kind});
+  const kind=solid.some(w=>w.external)?'external':solid.length?'partition':rooms.find(q=>[q.r,...(q.extra??[])].some(r=>inside(r,x,z)))?.id??'circulation';out.push({r,kind});
  });return out;
 }
 export function areaSummary(){

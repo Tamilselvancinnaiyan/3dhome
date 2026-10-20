@@ -19,3 +19,7 @@ Open `http://localhost:8000/dist/` for the tested build, or `http://localhost:80
 Use **Top view → Measurements** for clear room/zone dimensions, wall thicknesses and outer dimensions. **Building Area Summary** reports wall, room, circulation, porch, stair and approach-step areas separately. Living/dining are non-overlapping measurement zones in an open hall.
 
 These are preliminary finished-envelope wall assumptions (9 inches external, 4.5 inches internal), not structural or construction specifications. The original `plan.png` is retained as an approximate historical reference and does not represent the corrected geometry.
+
+## Design audit
+
+Open **Design Validation** in the sidebar for source-derived areas and check details. Enable **Highlight checks in Top View** for red failures, amber manual-review regions and green measured checks. These colors do not certify structural capacity or building-code compliance. See [DESIGN-AUDIT.md](DESIGN-AUDIT.md) for exact source locations, opening inventory, before/after areas and budget scenarios. `design-validation.mjs` must be deployed with the other static source files; `npm run build` includes it automatically.

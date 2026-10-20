@@ -1,0 +1,24 @@
+{
+  "roomAreas": {
+    "living": 223.99999999999997,
+    "dining": 85,
+    "kitchen": 80,
+    "master": 156,
+    "bed2": 121,
+    "common": 37.5,
+    "attached": 40,
+    "pooja": 20,
+    "utility": 36
+  },
+  "clear": 799.5,
+  "external": 93.18750000000001,
+  "partition": 33.421875,
+  "circulation": 75.515625,
+  "main": 1001.625,
+  "porch": 90,
+  "stairs": 84,
+  "steps": 13.5,
+  "combined": 1189.125,
+  "combinedWithoutSteps": 1175.625,
+  "reconciles": true
+}

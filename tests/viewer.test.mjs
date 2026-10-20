@@ -5,13 +5,18 @@ import vm from 'node:vm';
 import {JSDOM} from 'jsdom';
 import * as THREE from '../vendor/three.module.js';
 import * as plan from '../model-plan.mjs';
-function loadViewer(){
- const dom=new JSDOM(fs.readFileSync(new URL('../index.html',import.meta.url),'utf8'),{url:'http://localhost:8000'}),document=dom.window.document;
+import * as validation from '../design-validation.mjs';
+function loadViewer({panels=true}={}){
+ let html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ // Exercise optional panels both enabled and absent, as in the current page.
+ if(panels)html=html.replace(/<!--\s*(<details class="area-summary[\s\S]*?<\/details>)\s*-->/g,'$1');
+ else html=html.replace(/<details class="area-summary[\s\S]*?<\/details>/g,'');
+ const dom=new JSDOM(html,{url:'http://localhost:8000'}),document=dom.window.document;
  class Renderer{constructor(){this.domElement=document.createElement('canvas');this.shadowMap={};}setPixelRatio(){}setSize(){}render(){}}
  class Controls{constructor(){this.target=new THREE.Vector3();}update(){}}
- const context=vm.createContext({...plan,roomDefs:plan.rooms,THREE:{...THREE,WebGLRenderer:Renderer},OrbitControls:Controls,document,window:dom.window,performance,devicePixelRatio:1,requestAnimationFrame:()=>0,ResizeObserver:class{observe(){}}});
+ const context=vm.createContext({...plan,...validation,roomDefs:plan.rooms,THREE:{...THREE,WebGLRenderer:Renderer},OrbitControls:Controls,document,window:dom.window,performance,devicePixelRatio:1,requestAnimationFrame:()=>0,ResizeObserver:class{observe(){}}});
  const source=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');
- return vm.runInContext(source+'\n;({house,furn,roof,wallGroup,doors,rooms,camera,setMode,setDoors,blocked,heightAt,measures,measureLabels,frame,document})',context);
+ return vm.runInContext(source+'\n;({house,furn,roof,wallGroup,doors,rooms,camera,setMode,setDoors,blocked,heightAt,measures,measureLabels,validationGroup,frame,document})',context);
 }
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-5,`${a} != ${b}`);
 test('rendered queen beds, wardrobes, and key furniture match the geometry used by the area/access checks',()=>{
@@ -35,4 +40,19 @@ test('website derives sidebar values, measurements and labels from geometry, and
  v.document.getElementById('night').onchange({target:{checked:true}});
  v.setMode('walk');v.setDoors(true);v.document.getElementById('doors').checked=true;assert.equal(v.blocked(14.55,29.25),false);v.document.getElementById('doors').checked=false;v.setDoors(false);assert.equal(v.blocked(14.55,29),true);
  near(v.heightAt(34.5,10.5),15.3);near(v.heightAt(14.55,32.75),5.48);
+});
+
+test('validation panel and top-view highlights use the audit and stay independent of roof controls',()=>{
+ const v=loadViewer();assert.equal(v.document.querySelectorAll('.validation-item').length,validation.designValidation().checks.length);
+ assert.match(v.document.getElementById('validation-areas').textContent,/1,189.13/);
+ v.document.getElementById('validation-overlay').checked=true;v.setMode('top');v.frame(performance.now()+2000);assert.equal(v.validationGroup.visible,true);assert.ok(v.validationGroup.children.length>20);
+ v.setMode('exterior');v.frame(performance.now()+3000);assert.equal(v.validationGroup.visible,false);assert.equal(v.roof.visible,true);
+});
+
+test('viewer completes initialization and renders with optional area/validation panels absent',()=>{
+ const v=loadViewer({panels:false});assert.equal(v.document.getElementById('area-values'),null);assert.equal(v.document.getElementById('validation-overlay'),null);
+ assert.equal(v.document.getElementById('loading'),null);assert.equal(v.rooms.length,11);
+ v.setMode('top');assert.doesNotThrow(()=>v.frame(performance.now()+2000));assert.equal(v.validationGroup.visible,false);
+ v.document.getElementById('measurements').checked=true;v.frame(performance.now()+3000);assert.equal(v.measures.visible,true);
+ v.setMode('exterior');v.frame(performance.now()+4000);assert.equal(v.roof.visible,true);
 });

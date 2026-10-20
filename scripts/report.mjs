@@ -59,7 +59,8 @@ Significant changes, disclosed before implementation: the rear wing widened; the
 - Master wardrobe: 5 × 2 × 7 ft, with sliding doors. Bedside aisles: 3.5 ft; space in front of wardrobe: 4.15 ft.
 - Both beds and wardrobes are checked against the actual rendered Three.js bounds, not just their plan descriptions.
 - Dining table reduced to a practical 4 × 2.5 ft six-seat set to preserve the specified dining zone and a 2.51 ft side route. This changes furniture, not the required room dimensions.
-- The living sofa moved forward after testing found it restricted the master entry. The resulting approach corridor is 2.8 ft deep.
+- The master bedroom entrance is on its west side, accessed from the common hall like Bedroom 2, and opens into the bedroom clear of furniture.
+- The kitchen sink is on a compact counter at the kitchen–dining corner; the dining passage stays clear.
 - Full door sweeps are checked against walls and furniture. Hinges are on the opening-side finished face, with jamb gaps, so leaves do not clip through thick walls.
 - A grid route test with 1.25 ft obstacle clearance on each side verifies 2.5 ft-wide essential paths from the entrance to all room destinations with doors open. This is a planning check, not an accessibility/code certification.
 - Windows retain their existing timber/glass style, with openings repositioned to the corrected rooms. The TV is beside the front living window rather than across its opening. Kitchen upper cabinets avoid the windows. The three circular kitchen/bathroom exhaust openings are retained and repositioned into the corrected exterior walls.
