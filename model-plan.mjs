@@ -29,7 +29,7 @@ export const wallSpecs=[
  w('west','z',rect(0,0,.75,29.75),true,[win(15,19),vent(21.75,22.95),win(24,27)]),
  w('east-rear','z',rect(34.875,0,35.625,9.5),true,[win(5.5,7,5.5,1.5)]),
  w('recess-edge','x',rect(32,8.75,35.625,9.5),true),
- w('east-front','z',rect(32,8.75,32.75,29.75),true,[win(23.5,26.5)]),
+ w('east-front','z',rect(32,8.75,32.75,29.75),true),
  w('front','x',rect(0,29,32.75,29.75),true,[win(4,8),door(12.8,16.3,1),win(28.5,31,3,3)]),
  w('bed2-east','z',rect(11.75,.75,12.125,11.75),false,[door(8.5,11.5,1,'max')]),
  w('bed2-south','x',rect(.75,11.75,12.125,12.125),false),
