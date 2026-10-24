@@ -11,7 +11,7 @@ test('audit derives values from geometry and responds to a changed room/landing'
  const q=rooms.find(q=>q.id==='master'),x=q.r.x1;try{q.r.x1-=1;assert.equal(designValidation().checks.find(c=>c.id==='room-master').status,'FAIL');}finally{q.r.x1=x;}
  assert.equal(original.budget.main,original.areas.main*2350);assert.equal(original.budget.all,original.areas.combined*2350);
 });
-test('broader inventory includes rendered kitchen counters and handwash and retains essential routes',()=>{
- assert.equal(kitchenCounters.length,2);assert.ok(obstacles.find(o=>o.id==='dining-handwash'));
+test('broader inventory includes kitchen counters, excludes removed handwash and checks routes',()=>{
+ assert.equal(kitchenCounters.length,2);assert.equal(obstacles.some(o=>o.id==='dining-handwash'),false);
  assert.equal(routeChecks().length,9);assert.ok(routeChecks().every(r=>r.reachable));
 });

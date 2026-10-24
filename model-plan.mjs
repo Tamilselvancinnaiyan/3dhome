@@ -25,12 +25,12 @@ const vent=(from,to)=>opening('vent',from,to,{sill:7.5,top:8.7});
 const door=(from,to,swing=1,hinge='min')=>opening('door',from,to,{swing,hinge});
 const w=(id,axis,r,external,openings=[],height=HEIGHT)=>({id,axis,r,external,openings,height});
 export const wallSpecs=[
- w('rear','x',rect(0,0,35.625,.75),true,[win(3,6),vent(12.6,13.8),win(14,16,5.5,1.5),win(21,24),vent(30.5,31.7),win(32,33.5,5.5,1.5)]),
- w('west','z',rect(0,0,.75,29.75),true,[win(3,7),win(15,19),vent(21.75,22.95),win(24,27)]),
+ w('rear','x',rect(0,0,35.625,.75),true,[win(8.25,11.25),vent(12.6,13.8),win(14,16,5.5,1.5),win(21,24),vent(30.5,31.7),win(32,33.5,5.5,1.5)]),
+ w('west','z',rect(0,0,.75,29.75),true,[win(15,19),vent(21.75,22.95),win(24,27)]),
  w('east-rear','z',rect(34.875,0,35.625,9.5),true,[win(5.5,7,5.5,1.5)]),
  w('recess-edge','x',rect(32,8.75,35.625,9.5),true),
  w('east-front','z',rect(32,8.75,32.75,29.75),true,[win(23.5,26.5)]),
- w('front','x',rect(0,29,32.75,29.75),true,[win(4,8),door(12.8,16.3,1),win(22.5,27,1.8,4),win(28.5,31,3,3)]),
+ w('front','x',rect(0,29,32.75,29.75),true,[win(4,8),door(12.8,16.3,1),win(28.5,31,3,3)]),
  w('bed2-east','z',rect(11.75,.75,12.125,11.75),false,[door(8.5,11.5,1,'max')]),
  w('bed2-south','x',rect(.75,11.75,12.125,12.125),false),
  w('common-south','x',rect(12.125,8.25,17.125,8.625),false,[door(14.125,16.875,1)]),
@@ -62,10 +62,10 @@ export const furnitureFootprints=[
  {id:'attached-toilet',room:'attached',r:rect(30.4,1.25,31.8,3.5)},
  {id:'attached-shower',room:'attached',r:rect(32.35,1.1,34.875,3.4)},
  {id:'attached-basin',room:'attached',r:rect(33.6,6.9,34.8,7.8)},
- {id:'living-sofa',room:'living',r:rect(16.4,16.925,24.4,19.8)},
+ {id:'living-sofa',room:'living',r:rect(16.4,15.175,24.4,18.05)},
  {id:'living-table',room:'living',r:rect(18.4,21.15,22.4,23.95)},
  {id:'living-console',room:'living',r:rect(16.5,27.8,23.5,28.92)},
- {id:'dining-set',room:'dining',r:rect(.76,12.16,8.24,17.84)},
+ {id:'dining-set',room:'dining',r:rect(2.01,13.535,9.49,19.215)},
  {id:'kitchen-sink-counter',room:'kitchen',r:rect(8.75,21,10.75,24.25)},
  {id:'kitchen-fridge',room:'kitchen',r:rect(1,21.25,3.2,23.45)},
  {id:'pooja-altar',room:'pooja',r:rect(28.65,14.34,31.35,15.8)},

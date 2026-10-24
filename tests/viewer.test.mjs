@@ -16,7 +16,7 @@ function loadViewer({panels=true}={}){
  class Controls{constructor(){this.target=new THREE.Vector3();}update(){}}
  const context=vm.createContext({...plan,...validation,roomDefs:plan.rooms,THREE:{...THREE,WebGLRenderer:Renderer},OrbitControls:Controls,document,window:dom.window,performance,devicePixelRatio:1,requestAnimationFrame:()=>0,ResizeObserver:class{observe(){}}});
  const source=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');
- return vm.runInContext(source+'\n;({house,furn,roof,wallGroup,doors,rooms,camera,setMode,setDoors,blocked,heightAt,measures,measureLabels,validationGroup,frame,document})',context);
+ return vm.runInContext(source+'\n;({finish,applyScheme,exteriorView,landscape,decoration,exteriorLights,house,furn,roof,wallGroup,doors,rooms,camera,setMode,setDoors,blocked,heightAt,measures,measureLabels,validationGroup,frame,document})',context);
 }
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-5,`${a} != ${b}`);
 test('rendered queen beds, wardrobes, and key furniture match the geometry used by the area/access checks',()=>{
@@ -55,4 +55,15 @@ test('viewer completes initialization and renders with optional area/validation 
  v.setMode('top');assert.doesNotThrow(()=>v.frame(performance.now()+2000));assert.equal(v.validationGroup.visible,false);
  v.document.getElementById('measurements').checked=true;v.frame(performance.now()+3000);assert.equal(v.measures.visible,true);
  v.setMode('exterior');v.frame(performance.now()+4000);assert.equal(v.roof.visible,true);
+});
+
+test('exterior palettes reuse meshes, view presets retain plan, and lighting/landscape controls are independent',()=>{
+ const v=loadViewer();let count=0;v.house.traverse(()=>count++);
+ for(const key of ['grey','earthy','warm'])v.applyScheme(key);
+ near(v.finish.wall.color.getHex(),0xE9E3D9);let after=0;v.house.traverse(()=>after++);assert.equal(after,count);
+ for(const view of ['front','rear','left','right','perspective','aerial']){v.exteriorView(view);v.frame(performance.now()+2000);assert.equal(v.roof.visible,true);assert.match(v.document.getElementById('view-name').textContent,new RegExp(view.toUpperCase()));}
+ v.document.getElementById('landscaping').onchange({target:{checked:false}});assert.equal(v.landscape.visible,false);assert.equal(v.furn.visible,true);
+ v.document.getElementById('night').onchange({target:{checked:true}});assert.ok(v.exteriorLights.every(l=>l.intensity>0));
+ v.document.getElementById('light-temperature').onchange({target:{value:'cool'}});assert.ok(v.exteriorLights.every(l=>l.color.getHex()===0xf1f6ff));
+ v.setMode('top');assert.equal(v.decoration.visible,false);
 });

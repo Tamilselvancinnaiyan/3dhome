@@ -10,7 +10,7 @@ execFileSync(process.execPath,['--test','tests/geometry.test.mjs','tests/viewer.
 await writeReport();
 await writeAudit();
 await mkdir(new URL('../dist/',import.meta.url),{recursive:true});
-for(const file of ['index.html','app.js','model-plan.mjs','design-validation.mjs','DESIGN-AUDIT.md','style.css','plan.png','vendor','CORRECTED-PLAN-REPORT.md'])await cp(new URL('../'+file,import.meta.url),new URL('../dist/'+file,import.meta.url),{recursive:true});
+for(const file of ['index.html','app.js','model-plan.mjs','design-validation.mjs','DESIGN-AUDIT.md','style.css','plan.png','reference-image.png','vendor','CORRECTED-PLAN-REPORT.md'])await cp(new URL('../'+file,import.meta.url),new URL('../dist/'+file,import.meta.url),{recursive:true});
 const html=await readFile(new URL('../dist/index.html',import.meta.url),'utf8');
 if(!html.includes('model-plan')&&!html.includes('app.js'))throw new Error('Missing viewer entry point');
 await writeFile(new URL('../dist/area-summary.json',import.meta.url),JSON.stringify(areaSummary(),null,2)+'\n');
