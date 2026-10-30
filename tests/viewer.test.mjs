@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {JSDOM} from 'jsdom';
 import * as THREE from '../vendor/three.module.js';
-import * as plan from '../model-plan.mjs';
+import * as plan from '../model-plan.mjs?v=timber-sidelight-9';
 import * as validation from '../design-validation.mjs';
 function loadViewer({panels=true}={}){
  let html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
@@ -29,22 +29,22 @@ test('rendered structure has solid volume, porch supports meet canopy, and stair
  const v=loadViewer();v.wallGroup.scale.y=1;v.house.updateMatrixWorld(true);
  v.house.traverse(n=>{if(!n.isMesh)return;const p=n.geometry.attributes.position;for(const x of p.array)assert.ok(Number.isFinite(x),'Nonfinite geometry');assert.ok(n.geometry.index===null||n.geometry.index.count>0);});
  const flight=v.house.getObjectByName('Independent stair flight'),landing=v.house.getObjectByName('Stair landing');
- const b=new THREE.Box3().setFromObject(flight),l=new THREE.Box3().setFromObject(landing);near(b.min.x,32.75);near(b.max.x,36.25);near(b.min.z,12.75);near(b.max.z,33.75);near(l.min.z,9.75);near(l.max.z,12.75);near(l.max.y,9.9);
+ const b=new THREE.Box3().setFromObject(flight),l=new THREE.Box3().setFromObject(landing);near(b.min.x,35.625);near(b.max.x,39.125);near(b.min.z,12.75);near(b.max.z,33.75);near(l.min.z,9.75);near(l.max.z,12.75);near(l.max.y,9.9);
  const pillars=[];v.house.traverse(n=>{if(n.name==='Porch square pillar')pillars.push(n);});assert.equal(pillars.length,2);for(const p of pillars){const b=new THREE.Box3().setFromObject(p);near(b.min.y,plan.FLOOR_Y);near(b.max.y,plan.HEIGHT);}
 });
 test('website derives sidebar values, measurements and labels from geometry, and mode toggles remain independent',()=>{
- const v=loadViewer();assert.equal(v.document.getElementById('main-area').textContent,'1,001.63');assert.equal(v.document.querySelectorAll('#area-values dd').length,9);assert.equal(v.measureLabels.length,27);
+ const v=loadViewer();assert.equal(v.document.getElementById('main-area').textContent,'1,059.84');assert.equal(v.document.querySelectorAll('#area-values dd').length,9);assert.equal(v.measureLabels.length,27);assert.ok(v.measureLabels.some(m=>m.element.textContent==='Sit-out 20′ 0″'));assert.ok(v.measureLabels.some(m=>m.element.textContent==='Stair flight 3′ 6″'));
  v.setMode('top');assert.equal(v.roof.visible,false);v.document.getElementById('measurements').checked=true;v.frame(performance.now()+1000);assert.equal(v.measures.visible,true);
  v.setMode('exterior');v.frame(performance.now()+2000);assert.equal(v.roof.visible,true);assert.equal(v.measures.visible,false);
  v.document.getElementById('furniture').onchange({target:{checked:false}});assert.equal(v.furn.visible,false);assert.equal(v.roof.visible,true);
  v.document.getElementById('night').onchange({target:{checked:true}});
- v.setMode('walk');v.setDoors(true);v.document.getElementById('doors').checked=true;assert.equal(v.blocked(14.55,29.25),false);v.document.getElementById('doors').checked=false;v.setDoors(false);assert.equal(v.blocked(14.55,29),true);
- near(v.heightAt(34.5,10.5),15.3);near(v.heightAt(14.55,32.75),5.48);
+ v.setMode('walk');v.setDoors(true);v.document.getElementById('doors').checked=true;assert.equal(v.blocked(18.55,29.25),false);v.document.getElementById('doors').checked=false;v.setDoors(false);assert.equal(v.blocked(18.55,29),true);
+ near(v.heightAt(37.375,10.5),15.3);near(v.heightAt(18.55,32.75),5.48);
 });
 
 test('validation panel and top-view highlights use the audit and stay independent of roof controls',()=>{
  const v=loadViewer();assert.equal(v.document.querySelectorAll('.validation-item').length,validation.designValidation().checks.length);
- assert.match(v.document.getElementById('validation-areas').textContent,/1,189.13/);
+ assert.match(v.document.getElementById('validation-areas').textContent,/1,257.34/);
  v.document.getElementById('validation-overlay').checked=true;v.setMode('top');v.frame(performance.now()+2000);assert.equal(v.validationGroup.visible,true);assert.ok(v.validationGroup.children.length>20);
  v.setMode('exterior');v.frame(performance.now()+3000);assert.equal(v.validationGroup.visible,false);assert.equal(v.roof.visible,true);
 });
@@ -66,4 +66,11 @@ test('exterior palettes reuse meshes, view presets retain plan, and lighting/lan
  v.document.getElementById('night').onchange({target:{checked:true}});assert.ok(v.exteriorLights.every(l=>l.intensity>0));
  v.document.getElementById('light-temperature').onchange({target:{value:'cool'}});assert.ok(v.exteriorLights.every(l=>l.color.getHex()===0xf1f6ff));
  v.setMode('top');assert.equal(v.decoration.visible,false);
+});
+
+test('main entrance has a solid leaf and a fixed glazed sidelight, with empty sit-out',()=>{
+ const v=loadViewer(),main=v.doors.find(d=>d.wall.id==='front');
+ const glass=v.wallGroup.getObjectByName('Main door sidelight glazing');assert.ok(glass);assert.equal(glass.material.transparent,true);assert.ok(glass.material.opacity<.2);
+ assert.equal(v.furn.getObjectByName('sitout-chair-left'),undefined);assert.equal(v.furn.getObjectByName('sitout-chair-right'),undefined);
+ assert.ok(main.hinge.getObjectByName('Solid timber main door'));const fixedParent=glass.parent;v.setDoors(false);near(main.hinge.rotation.y,main.base);v.setDoors(true);assert.equal(glass.parent,fixedParent);assert.notEqual(glass.parent,main.hinge);
 });

@@ -1,25 +1,38 @@
-# Measured 2BHK house explorer
+# Three.js house explorer
 
-A local Three.js viewer. One model unit is one foot. `model-plan.mjs` is the source of finished-face room bounds, external/internal walls, openings, porch and stairs. Both rendering and the sidebar area summary use that geometry.
+Updated working model with the revised left-side pooja and utility, open right living area, master-partition sofa, front-wall TV, half-height kitchen–dining opening, and exact 20 × 5 ft sit-out. The existing viewer, exterior palette/material style, measurement overlay, room focus, walkthrough and exterior presets are retained.
 
-The corrected main house is **1,001.625 sq ft**, plus a **90 sq ft** sit-out and **84 sq ft** external staircase. See [the generated report](CORRECTED-PLAN-REPORT.md) for the original/corrected room comparison, measurements, complete area reconciliation and review limitations.
+## Run
 
-## Run and build
+Serve this directory over HTTP, for example:
 
-Use Node.js 24 for development checks. With dependencies installed:
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Open http://127.0.0.1:8000/. Use **Kitchen–dining detail** to inspect the sill and separate passage.
 
 ```sh
 npm test
 npm run build
-python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
-Open `http://localhost:8000/dist/` for the tested build, or `http://localhost:8000/` for source preview. A WebGL-capable browser is required. Production is static HTML/CSS/JavaScript: no server-side Node.js dependency is needed. Existing GitHub Pages root hosting still works when the updated source files, new `model-plan.mjs`, and `vendor/` are included; `dist/` is an alternative complete static output.
+Build validates geometry and rendered furniture, then packages the static working viewer in `dist/` with `area-summary.json`. Serve `dist/` over HTTP to use that package independently.
 
-Use **Top view → Measurements** for clear room/zone dimensions, wall thicknesses and outer dimensions. **Building Area Summary** reports wall, room, circulation, porch, stair and approach-step areas separately. Living/dining are non-overlapping measurement zones in an open hall.
+## Measurements
 
-These are preliminary finished-envelope wall assumptions (9 inches external, 4.5 inches internal), not structural or construction specifications. The original `plan.png` is retained as an approximate historical reference and does not represent the corrected geometry.
+- Main-house built-up: **1,059.84375 sq ft**.
+- Covered sit-out: **100 sq ft**.
+- External staircase, including landing: **84 sq ft**.
+- Additional circulation / open hall apron / thresholds: **117.375 sq ft**, included in the main house.
+- Clear room targets total **815.25 sq ft**. Original targets summed to 806.25 sq ft; closing the Bedroom 2–pooja gap adds 9 sq ft to utility. Rooms plus sit-out now total 915.25 sq ft before walls/circulation.
 
-## Design audit
+See [geometry-derived measurement report](CORRECTED-PLAN-REPORT.md), [design audit](DESIGN-AUDIT.md), and `screenshots/`. The retained stair landing is 3 ft deep beside a 3.5 ft-wide flight and remains flagged for detailed design review. The model does not establish construction or structural compliance.
 
-Open **Design Validation** in the sidebar for source-derived areas and check details. Enable **Highlight checks in Top View** for red failures, amber manual-review regions and green measured checks. These colors do not certify structural capacity or building-code compliance. See [DESIGN-AUDIT.md](DESIGN-AUDIT.md) for exact source locations, opening inventory, before/after areas and budget scenarios. `design-validation.mjs` must be deployed with the other static source files; `npm run build` includes it automatically.
+Pooja now shares the Bedroom 2 south wall; utility is 4.5 × 11.5 ft, including the recovered depth and a rear laundry storage counter.
+
+Sit-out chairs and corner pots removed. Pooja and Bedroom 2 west-side windows and the attached bathroom stair-side window are closed. The main entrance matches the reference with a solid carved timber leaf, long handle and fixed glazed/slatted sidelight on the right. The door opening and swing are unchanged; glazing stays fixed beside the leaf.
+
+## Downloadable 2D plan
+
+Open **Reference & 2D plan** to view the current measured layout and download it as PNG or SVG. `npm run build` regenerates both images from `model-plan.mjs`; `npm run render:plan` regenerates only the image. PNG rendering uses `sharp`, resolving an installed package first and the bundled Codex workspace runtime second. The static viewer includes the generated files and needs no image-rendering library to display or download them.

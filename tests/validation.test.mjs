@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {designValidation,routeChecks,obstacles,kitchenCounters} from '../design-validation.mjs';
-import {areaSummary,stair,rooms} from '../model-plan.mjs';
+import {areaSummary,stair,rooms} from '../model-plan.mjs?v=timber-sidelight-9';
 test('audit derives values from geometry and responds to a changed room/landing',()=>{
  const original=designValidation();assert.deepEqual(original.areas,areaSummary());
- assert.equal(original.checks.find(c=>c.id==='dining').status,'FAIL');
+ assert.equal(original.checks.find(c=>c.id==='dining').status,'PASS');
  assert.equal(original.checks.find(c=>c.id==='stair-landing').status,'FAIL');
  assert.equal(original.checks.find(c=>c.id==='structure').status,'NEEDS MANUAL VERIFICATION');
  const z=stair.landing.z0;try{stair.landing.z0-=.5;const next=designValidation();assert.equal(next.checks.find(c=>c.id==='stair-landing').status,'PASS');assert.equal(next.areas.stairs-original.areas.stairs,1.75);}finally{stair.landing.z0=z;}

@@ -6,18 +6,18 @@ export const contains=(r,x,z)=>x>=r.x0-1e-8&&x<=r.x1+1e-8&&z>=r.z0-1e-8&&z<=r.z1
 export const intersects=(a,b)=>Math.min(a.x1,b.x1)>Math.max(a.x0,b.x0)+1e-8&&Math.min(a.z1,b.z1)>Math.max(a.z0,b.z0)+1e-8;
 export const area=r=>(r.x1-r.x0)*(r.z1-r.z0);
 export const bounds=rs=>rect(Math.min(...rs.map(r=>r.x0)),Math.min(...rs.map(r=>r.z0)),Math.max(...rs.map(r=>r.x1)),Math.max(...rs.map(r=>r.z1)));
-export const outline=[rect(0,0,35.625,9.5),rect(0,9.5,32.75,29.75)];
-export const perimeter=[[0,0,35.625,0],[35.625,0,35.625,9.5],[35.625,9.5,32.75,9.5],[32.75,9.5,32.75,29.75],[32.75,29.75,0,29.75],[0,29.75,0,0]];
+export const outline=[rect(0,0,35.625,29.75)];
+export let perimeter;
 export const rooms=[
- {id:'living',name:'Living room',r:rect(11.125,15,27.125,29),zone:true,original:'Open plan; label 16 × 14'},
- {id:'dining',name:'Dining',r:rect(.75,12.125,10.75,20.625),zone:true,original:'Open plan; label 10 × 8.5'},
- {id:'kitchen',name:'Kitchen',r:rect(.75,21,10.75,29),original:'12 × 7 centerlines'},
- {id:'master',name:'Master bedroom',r:rect(17.5,.75,29.5,13.75),extra:[rect(29.5,9.125,32,13.75)],original:'11 × 11 centerlines'},
+ {id:'living',name:'Living room',r:rect(18.875,14.125,34.875,28.125),zone:true,original:'Open plan; label 16 × 14'},
+ {id:'dining',name:'Dining',r:rect(5.625,12.125,15.625,20.625),zone:true,original:'Open plan; label 10 × 8.5'},
+ {id:'kitchen',name:'Kitchen',r:rect(5.625,21,15.625,29),original:'12 × 7 centerlines'},
+ {id:'master',name:'Master bedroom',r:rect(17.5,.75,29.5,13.75),original:'11 × 11 centerlines'},
  {id:'bed2',name:'Bedroom 2',r:rect(.75,.75,11.75,11.75),original:'10 × 11 centerlines'},
  {id:'common',name:'Common bathroom',r:rect(12.125,.75,17.125,8.25),original:'4.5 × 7.5 centerlines'},
  {id:'attached',name:'Attached bathroom',r:rect(29.875,.75,34.875,8.75),original:'4.5 × 11 centerlines'},
- {id:'pooja',name:'Pooja room',r:rect(28,14.125,32,19.125),original:'4 × 5 centerlines'},
- {id:'utility',name:'Utility',r:rect(27.5,19.5,32,29),original:'4 × 9 centerlines'}
+ {id:'pooja',name:'Pooja room',r:rect(.75,12.125,4.75,17.125),original:'4 × 5 centerlines'},
+ {id:'utility',name:'Utility',r:rect(.75,17.5,5.25,29),original:'4 × 9 centerlines'}
 ];
 const opening=(kind,from,to,extra={})=>({kind,from,to,...extra});
 const win=(from,to,sill=3,height=4)=>opening('window',from,to,{sill,top:sill+height});
@@ -26,52 +26,53 @@ const door=(from,to,swing=1,hinge='min')=>opening('door',from,to,{swing,hinge});
 const w=(id,axis,r,external,openings=[],height=HEIGHT)=>({id,axis,r,external,openings,height});
 export const wallSpecs=[
  w('rear','x',rect(0,0,35.625,.75),true,[win(8.25,11.25),vent(12.6,13.8),win(14,16,5.5,1.5),win(21,24),vent(30.5,31.7),win(32,33.5,5.5,1.5)]),
- w('west','z',rect(0,0,.75,29.75),true,[win(15,19),vent(21.75,22.95),win(24,27)]),
- w('east-rear','z',rect(34.875,0,35.625,9.5),true,[win(5.5,7,5.5,1.5)]),
- w('recess-edge','x',rect(32,8.75,35.625,9.5),true),
- w('east-front','z',rect(32,8.75,32.75,29.75),true),
- w('front','x',rect(0,29,32.75,29.75),true,[win(4,8),door(12.8,16.3,1),win(28.5,31,3,3)]),
+ w('west','z',rect(0,0,.75,29.75),true,[win(22,25,4,2)]),
+ w('pooja-east','z',rect(4.75,12.125,5.125,17.125),false,[opening('opening',13.5,16.5)]),
+ w('pooja-utility','x',rect(.75,17.125,5.625,17.5),false),
+ w('utility-east','z',rect(5.25,17.5,5.625,29),false,[door(21,24,-1)]),
+ w('east-rear','z',rect(34.875,0,35.625,29.75),true,[win(20,24)]),
+ w('attached-south','x',rect(29.875,8.75,34.875,9.125),false),
+ w('front','x',rect(0,29,35.625,29.75),true,[win(9,13),door(16.8,20.3,1),{...win(20.45,21.55,.15,6.85),sidelight:true},win(28.5,32.5,3,3)]),
  w('bed2-east','z',rect(11.75,.75,12.125,11.75),false,[door(8.5,11.5,1,'max')]),
  w('bed2-south','x',rect(.75,11.75,12.125,12.125),false),
  w('common-south','x',rect(12.125,8.25,17.125,8.625),false,[door(14.125,16.875,1)]),
  w('master-west','z',rect(17.125,.75,17.5,13.75),false,[door(10.5,13.5,-1,'max')]),
  w('master-east','z',rect(29.5,.75,29.875,9.125),false,[door(5.5,8.25,1)]),
- w('master-south','x',rect(17.125,13.75,32,14.125),false),
- w('attached-south','x',rect(29.875,8.75,32,9.125),false),
- w('kitchen-north','x',rect(.75,20.625,11.125,21),false,[opening('opening',4,7)],3.5),
- w('kitchen-east','z',rect(10.75,21,11.125,29),false),
- w('pooja-west','z',rect(27.625,14.125,28,19.125),false,[opening('opening',16,18.5)]),
- w('pooja-utility','x',rect(27.125,19.125,32,19.5),false),
- w('utility-west','z',rect(27.125,19.5,27.5,29),false,[door(21.5,24.25,-1)])
+ w('master-south','x',rect(17.125,13.75,34.875,14.125),false),
+ w('kitchen-north','x',rect(5.625,20.625,16,21),false,[opening('opening',5.625,8.625)],3.25),
+ w('kitchen-east','z',rect(15.625,21,16,29),false),
+
 ];
-export const porch={r:rect(7.05,29.75,22.05,35.75),centerX:14.55,floorY:FLOOR_Y,roofBottom:HEIGHT};
-export const stair={flight:rect(32.75,12.75,36.25,33.75),landing:rect(32.75,9.75,36.25,12.75),groundY:-1.5,topY:9.9,risers:22};
+export const porch={r:rect(8.55,29.75,28.55,34.75),centerX:18.55,floorY:FLOOR_Y,roofBottom:HEIGHT};
+export const stair={flight:rect(35.625,12.75,39.125,33.75),landing:rect(35.625,9.75,39.125,12.75),groundY:-1.5,topY:9.9,risers:22};
 stair.rise=(stair.topY-stair.groundY)/stair.risers;stair.going=(stair.flight.z1-stair.flight.z0)/(stair.risers-1);
-export const entranceSteps=Array.from({length:3},(_,i)=>rect(12.3,35.75+i,16.8,36.75+i));
+export const entranceSteps=Array.from({length:3},(_,i)=>rect(16.3,34.75+i,20.8,35.75+i));
 export const furnitureFootprints=[
  {id:'bed2-bed',room:'bed2',r:rect(1.15,1.25,7.65,6.25)},
  {id:'bed2-wardrobe',room:'bed2',r:rect(1.25,9.7,5.25,11.7)},
  {id:'bed2-table',room:'bed2',r:rect(1.2,6.575,2.2,7.225)},
- {id:'master-bed',room:'master',r:rect(21,1.05,26,7.55)},
- {id:'master-wardrobe',room:'master',r:rect(24.2,11.7,29.2,13.7)},
- {id:'master-shelf-left',room:'master',r:rect(19.75,.75,20.75,1.75)},
- {id:'master-shelf-right',room:'master',r:rect(26.25,.75,27.25,1.75)},
+ {id:'master-bed',room:'master',r:rect(20.5,1.8,27,6.8)},
+ {id:'master-wardrobe',room:'dressing',r:rect(29.875,11.7,34.875,13.7)},
+ {id:'master-shelf-left',room:'master',r:rect(26,.75,27,1.75)},
+ {id:'master-shelf-right',room:'master',r:rect(26,6.85,27,7.85)},
  {id:'common-toilet',room:'common',r:rect(12.7,1.25,14.1,3.5)},
  {id:'common-shower',room:'common',r:rect(14.65,1.1,17.125,3.4)},
  {id:'common-basin',room:'common',r:rect(12.55,6,13.95,6.9)},
  {id:'attached-toilet',room:'attached',r:rect(30.4,1.25,31.8,3.5)},
  {id:'attached-shower',room:'attached',r:rect(32.35,1.1,34.875,3.4)},
  {id:'attached-basin',room:'attached',r:rect(33.6,6.9,34.8,7.8)},
- {id:'living-sofa',room:'living',r:rect(16.4,15.175,24.4,18.05)},
- {id:'living-table',room:'living',r:rect(18.4,21.15,22.4,23.95)},
- {id:'living-console',room:'living',r:rect(16.5,27.8,23.5,28.92)},
- {id:'dining-set',room:'dining',r:rect(2.01,13.535,9.49,19.215)},
- {id:'kitchen-sink-counter',room:'kitchen',r:rect(8.75,21,10.75,24.25)},
- {id:'kitchen-fridge',room:'kitchen',r:rect(1,21.25,3.2,23.45)},
- {id:'pooja-altar',room:'pooja',r:rect(28.65,14.34,31.35,15.8)},
- {id:'utility-washer',room:'utility',r:rect(28,26.5,30.2,28.7)},
- {id:'utility-counter',room:'utility',r:rect(30.8,26.5,31.9,28.5)}
+ {id:'living-sofa',room:'living',r:rect(20.0,14.175,28.0,17.05)},
+ {id:'living-table',room:'living',r:rect(22.4,19.95,25.6,23.15)},
+ {id:'living-console',room:'living',r:rect(21.1,27.8,28.1,28.92)},
+ {id:'dining-set',room:'dining',r:rect(8.375,14.835,13.875,18.915)},
+ {id:'kitchen-sink-counter',room:'kitchen',r:rect(5.625,24,7.625,27)},
+ {id:'kitchen-fridge',room:'kitchen',r:rect(13.425,26.8,15.625,29)},
+ {id:'pooja-altar',room:'pooja',r:rect(1.075,12.34,3.775,13.8)},
+ {id:'utility-washer',room:'utility',r:rect(1.0750000000000002,26.5,3.275,28.7)},
+ {id:'utility-counter',room:'utility',r:rect(3.975,26.5,5.075,28.5)},
+ {id:'utility-storage',room:'utility',r:rect(.75,17.5,5.25,19)}
 ];
+export const dressing={id:'dressing',name:'Master wardrobe access',r:rect(29.5,9.125,34.875,13.75)};
 export const dimension=r=>({width:r.x1-r.x0,depth:r.z1-r.z0});
 export function feetInches(feet){const e=Math.round(feet*96),f=Math.floor(e/96),inch=(e%96)/8;return `${f}′ ${Number(inch.toFixed(3))}″`;}
 export const dimensionText=r=>{const d=dimension(r);return `${feetInches(d.width)} × ${feetInches(d.depth)}`;};
@@ -130,3 +131,15 @@ export function sweptDoorHits(w,o,obstacles){
   for(const q of obstacles)if(inside(q.r??q,x,z))return {angle:a,obstacle:q.id??'wall',x,z};
  }}return null;
 }
+
+// Exposed polygon edges drive roof trim; skip the terrace stair access opening.
+export const roofEdges=(()=>{
+ const xs=[...new Set(outline.flatMap(r=>[r.x0,r.x1]))].sort((a,b)=>a-b),zs=[...new Set([...outline.flatMap(r=>[r.z0,r.z1]),stair.landing.z0,stair.landing.z1])].sort((a,b)=>a-b),e=[];
+ const has=(x,z)=>outline.some(r=>inside(r,x,z));
+ for(let i=0;i<xs.length-1;i++)for(let j=0;j<zs.length-1;j++){
+ const a=xs[i],b=xs[i+1],c=zs[j],d=zs[j+1],x=(a+b)/2,z=(c+d)/2;if(!has(x,z))continue;
+ if(!has(x,c-.001))e.push([a,c,b,c]);if(!has(x,d+.001))e.push([a,d,b,d]);if(!has(a-.001,z))e.push([a,c,a,d]);if(!has(b+.001,z))e.push([b,c,b,d]);
+ }return e;
+})();
+
+perimeter=roofEdges;
