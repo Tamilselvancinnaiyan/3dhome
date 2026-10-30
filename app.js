@@ -441,11 +441,3 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min((now-prev)/10
 }
 new ResizeObserver(()=>{const w=vp.clientWidth,h=vp.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();if(mode!=='walk'){anim=null;overview(mode,false);}}).observe(vp);
 $('loading').remove();setMode('cutaway');requestAnimationFrame(frame);
-
-// Interior detail preset makes the finished sill and separate passage reviewable.
-$('opening-view').onclick=()=>{
- setMode('walk');camera.position.set(6.875,5.48,18);
- const target=new THREE.Vector3(10.475,3.2,23.2),direction=target.sub(camera.position);
- yaw=Math.atan2(-direction.x,-direction.z);pitch=Math.atan2(direction.y,Math.hypot(direction.x,direction.z));
- $('space-name').textContent='Kitchen–dining opening';$('space-info').textContent='3.37 ft finished sill · 3 ft doorless passage';
-};

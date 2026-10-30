@@ -58,7 +58,7 @@ Visual checks include top view, cutaway, kitchen–dining detail, walkthrough an
 
 Retained stair flight: ${dimensionText(stair.flight)}, ${stair.risers} risers, ${stair.going} ft going. Connecting landing: ${dimensionText(stair.landing)}. Its **3 ft travel depth is less than the 3.5 ft gross flight width**; this retained design limitation is flagged in the audit. Guard infill, final structural support, appliance-door operation, ventilation free area and construction details still need detailed design. The sampled routes assume fully open doors and do not certify accessibility or construction compliance.
 
-The supplied revised layout image is saved as revised-plan-reference.png and is available in the viewer reference dialog alongside the existing exterior design board. It is an arrangement reference, not a scale drawing; no pixels were traced. Its incorrect area subtotals are explicitly corrected above. The written instruction to retain the TV on the front wall takes precedence over the reference image’s right-wall TV.
+The current geometry-derived 2D plan is available in the reference dialog with PNG and SVG downloads. Earlier reference sections have been removed. The original arrangement was used as a reference, not traced as a scale drawing. Its incorrect area subtotals are explicitly corrected above. The written instruction to retain the TV on the front wall takes precedence over the reference image’s right-wall TV.
 `;
  await writeFile(new URL('../CORRECTED-PLAN-REPORT.md',import.meta.url),report);return report;
 }
